@@ -64,7 +64,8 @@ def tt_dense_matmul(tt_matrix_a, matrix_b):
     # If A is (i0, ..., id-1) x (j0, ..., jd-1) and B is (j0, ..., jd-1) x K,
     # data is (K, j0, ..., jd-2) x jd-1 x 1
     data = matrix_b.transpose(0, 1)
-    data = data.view(-1, a_raw_shape[1][-1], 1)
+    #data = data.view(-1, a_raw_shape[1][-1], 1)
+    data = data.reshape(-1, a_raw_shape[1][-1], 1)
 
     for core_idx in reversed(range(ndims)):
         curr_core = tt_matrix_a.tt_cores[core_idx]
