@@ -111,6 +111,8 @@ def dense_tt_matmul(matrix_a, tt_matrix_b):
         curr_core = tt_matrix_b.tt_cores[core_idx]
         data = torch.tensordot(data, curr_core, dims=[[1, -1], [1, 0]])
 
+    print("data.shape after tdot", data.shape)
+
     if len(a_shape) == 2:
         return data.view(a_shape[0], b_shape[1])
     elif len(a_shape) == 3:
