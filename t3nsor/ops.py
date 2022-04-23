@@ -86,7 +86,6 @@ def dense_tt_matmul(matrix_a, tt_matrix_b):
     ndims = tt_matrix_b.ndims
     a_columns = matrix_a.shape[1]
     b_rows = tt_matrix_b.shape[0]
-    print(matrix_a.shape, tt_matrix_b.shape)
 
     if a_columns is not None and b_rows is not None:
         if a_columns != b_rows:
