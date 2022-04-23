@@ -94,30 +94,30 @@ def dense_tt_matmul(matrix_a, tt_matrix_b):
     a_shape = matrix_a.shape
     b_shape = tt_matrix_b.shape
     b_raw_shape = tt_matrix_b.raw_shape
-    print("a_shape", a_shape)
-    print("b_shape", b_shape)
-    print("b_raw_shape", b_raw_shape)
-
+    # print("a_shape", a_shape)
+    # print("b_shape", b_shape)
+    # print("b_raw_shape", b_raw_shape)
 
     data = matrix_a
 
     new_shape = [-1, ] + b_raw_shape[0] + [1, ]
-    print("new_shape", new_shape)
+    # print("new_shape", new_shape)
 
     data = data.view(*new_shape)
-    print("data.shape", data.shape)
+    # print("data.shape", data.shape)
 
     for core_idx in range(ndims):
         curr_core = tt_matrix_b.tt_cores[core_idx]
         data = torch.tensordot(data, curr_core, dims=[[1, -1], [1, 0]])
 
-    print("data.shape after tdot", data.shape)
+    # print("data.shape after tdot", data.shape)
 
     if len(a_shape) == 2:
         return data.view(a_shape[0], b_shape[1])
     elif len(a_shape) == 3:
         return data.view(a_shape[0], a_shape[1], b_shape[1])
   
+
 def naive_dense_tt_matmul(matrix_a, tt_matrix_b):
     ndims = tt_matrix_b.ndims
     a_columns = matrix_a.shape[1]
