@@ -166,7 +166,8 @@ class TREmbedding(nn.Module):
 class TTLinear(nn.Module):
     def __init__(self, in_features=None, out_features=None, bias=True, init=None, shape=None,
                  auto_shapes=True, d=3, tt_rank=8, auto_shape_mode='ascending',
-                 auto_shape_criterion='entropy', reverse_out_shape=False, naive=False
+                 auto_shape_criterion='entropy', naive=False,
+                 reverse_out_shape=False, factorize_smaller_dim=True
                  ):
         super(TTLinear, self).__init__()
 
@@ -178,6 +179,16 @@ class TTLinear(nn.Module):
                 in_features, d=d, criterion=auto_shape_criterion, mode=auto_shape_mode)
             out_quantization = t3.utils.auto_shape(
                 out_features, d=d, criterion=auto_shape_criterion, mode=auto_shape_mode)
+
+            if not factorize_smaller_dim and out_features < in_features:
+                out_quantization = [1] * (d-1) + [out_features]
+                if auto_shape_mode != 'ascending':
+                    out_quantization = list(reversed(out_quantization))
+
+            if not factorize_smaller_dim and in_features < out_features:
+                in_quantization = [1] * (d-1) + [in_features]
+                if auto_shape_mode != 'ascending':
+                    in_quantization = list(reversed(in_quantization))
 
             if reverse_out_shape:
                 out_quantization = list(reversed(out_quantization))
