@@ -166,7 +166,7 @@ class TREmbedding(nn.Module):
 class TTLinear(nn.Module):
     def __init__(self, in_features=None, out_features=None, bias=True, init=None, shape=None,
                  auto_shapes=True, d=3, tt_rank=8, auto_shape_mode='ascending',
-                 auto_shape_criterion='entropy', reverse_out_shape=True, naive=False
+                 auto_shape_criterion='entropy', reverse_out_shape=False, naive=False
                  ):
         super(TTLinear, self).__init__()
 
