@@ -183,15 +183,15 @@ class TTLinear(nn.Module):
             if not factorize_smaller_dim and out_features < in_features:
                 out_quantization = [1] * (d-1) + [out_features]
                 if auto_shape_mode != 'ascending':
-                    out_quantization = list(reversed(out_quantization))
+                    out_quantization.reverse()
 
             if not factorize_smaller_dim and in_features < out_features:
                 in_quantization = [1] * (d-1) + [in_features]
                 if auto_shape_mode != 'ascending':
-                    in_quantization = list(reversed(in_quantization))
+                    in_quantization.reverse()
 
             if reverse_out_shape:
-                out_quantization = list(reversed(out_quantization))
+                out_quantization.reverse()
 
             shape = [in_quantization, out_quantization]
 
