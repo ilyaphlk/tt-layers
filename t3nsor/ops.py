@@ -81,8 +81,18 @@ def tt_dense_matmul(tt_matrix_a, matrix_b):
     # At the end the shape of the data is (i0, ..., id-1) x K
     return data.view(a_shape[0], b_shape[1])
 
+def mul_cores_fast(data, tt_cores):
+    for tt_core in tt_cores:
+        sh = data.shape
+        sh_left = sh[0:1] + sh[2:-1]
+        sh_right = tt_core.shape[2:]
+        idx = list(range(len(sh)))
+        idx = idx[0:1] + idx[2:] + idx[1:2]
+        data = torch.matmul(data.permute(idx).reshape(-1, sh[-1]*sh[1]), tt_core.reshape(sh[-1]*sh[1], -1)).reshape(*sh_left, *sh_right)
+    return data
 
-def dense_tt_matmul(matrix_a, tt_matrix_b):
+
+def dense_tt_matmul(matrix_a, tt_matrix_b, use_scripted_mul=False):
     ndims = tt_matrix_b.ndims
     a_columns = matrix_a.shape[-1]
     b_rows = tt_matrix_b.shape[0]
@@ -106,9 +116,13 @@ def dense_tt_matmul(matrix_a, tt_matrix_b):
     data = data.view(*new_shape)
     # print("data.shape", data.shape)
 
-    for core_idx in range(ndims):
-        curr_core = tt_matrix_b.tt_cores[core_idx]
-        data = torch.tensordot(data, curr_core, dims=[[1, -1], [1, 0]])
+    if use_scripted_mul:
+        data = mul_cores_fast(data, tt_matrix_b.tt_cores)
+    else:
+        # correct but slow for large ndims
+        for core_idx in range(ndims):
+            curr_core = tt_matrix_b.tt_cores[core_idx]
+            data = torch.tensordot(data, curr_core, dims=[[1, -1], [1, 0]])
 
     # print("data.shape after tdot", data.shape)
 
