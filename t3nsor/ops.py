@@ -81,6 +81,7 @@ def tt_dense_matmul(tt_matrix_a, matrix_b):
     # At the end the shape of the data is (i0, ..., id-1) x K
     return data.view(a_shape[0], b_shape[1])
 
+@torch.jit.script
 def mul_cores_fast(data, tt_cores):
     for tt_core in tt_cores:
         sh = data.shape
