@@ -1,6 +1,7 @@
 from t3nsor import TensorTrainBatch
 from t3nsor import TensorTrain
 import torch
+from typing import List
 
 def gather_rows(tt_mat, inds):
     """
@@ -82,7 +83,7 @@ def tt_dense_matmul(tt_matrix_a, matrix_b):
     return data.view(a_shape[0], b_shape[1])
 
 @torch.jit.script
-def mul_cores_fast(data, tt_cores):
+def mul_cores_fast(data, tt_cores: List[torch.Tensor]):
     for tt_core in tt_cores:
         sh = data.shape
         # sh_left = sh[0:1] + sh[2:-1]
