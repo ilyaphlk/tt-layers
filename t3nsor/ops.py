@@ -85,11 +85,12 @@ def tt_dense_matmul(tt_matrix_a, matrix_b):
 def mul_cores_fast(data, tt_cores):
     for tt_core in tt_cores:
         sh = data.shape
-        sh_left = sh[0:1] + sh[2:-1]
-        sh_right = tt_core.shape[2:]
+        # sh_left = sh[0:1] + sh[2:-1]
+        # sh_right = tt_core.shape[2:]
+        res_shape = sh[0:1] + sh[2:-1] + tt_core.shape[2:]
         idx = list(range(len(sh)))
         idx = idx[0:1] + idx[2:] + idx[1:2]
-        data = torch.matmul(data.permute(idx).reshape(-1, sh[-1]*sh[1]), tt_core.reshape(sh[-1]*sh[1], -1)).reshape(*sh_left, *sh_right)
+        data = torch.matmul(data.permute(idx).reshape(-1, sh[-1]*sh[1]), tt_core.reshape(sh[-1]*sh[1], -1)).reshape(res_shape)
     return data
 
 
