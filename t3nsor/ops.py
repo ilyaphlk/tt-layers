@@ -86,8 +86,6 @@ def tt_dense_matmul(tt_matrix_a, matrix_b):
 def mul_cores_fast(data, tt_cores: List[torch.Tensor]):
     for tt_core in tt_cores:
         sh = data.shape
-        # sh_left = sh[0:1] + sh[2:-1]
-        # sh_right = tt_core.shape[2:]
         res_shape = sh[0:1] + sh[2:-1] + tt_core.shape[2:]
         idx = list(range(len(sh)))
         idx = idx[0:1] + idx[2:] + idx[1:2]
@@ -95,7 +93,7 @@ def mul_cores_fast(data, tt_cores: List[torch.Tensor]):
     return data
 
 
-def dense_tt_matmul(matrix_a, tt_matrix_b, use_scripted_mul=False):
+def dense_tt_matmul(matrix_a, tt_matrix_b, use_scripted_mul=False, cores_nonlinearity=None):
     ndims = tt_matrix_b.ndims
     a_columns = matrix_a.shape[-1]
     b_rows = tt_matrix_b.shape[0]
@@ -126,6 +124,8 @@ def dense_tt_matmul(matrix_a, tt_matrix_b, use_scripted_mul=False):
         for core_idx in range(ndims):
             curr_core = tt_matrix_b.tt_cores[core_idx]
             data = torch.tensordot(data, curr_core, dims=[[1, -1], [1, 0]])
+            if cores_nonlinearity is not None:
+                data = cores_nonlinearity(data)
 
     # print("data.shape after tdot", data.shape)
 
