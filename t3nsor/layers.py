@@ -230,6 +230,46 @@ class TTLinear(nn.Module):
             return self.mm_op(x, weight) + self.bias
 
 
+class TTLayerNorm(nn.Module):
+    def __init__(self, in_features=None, out_features=None, bias=False, init=None, shape=None,
+                 auto_shapes=True, d=3, tt_rank=1, auto_shape_mode='ascending',
+                 auto_shape_criterion='entropy', naive=False,
+                 ):
+        super(TTLinear, self).__init__()
+
+        if auto_shapes:
+            if in_features is None or out_features is None:
+                raise ValueError("Shape is not specified")
+
+            in_quantization = t3.utils.auto_shape(
+                in_features, d=d, criterion=auto_shape_criterion, mode=auto_shape_mode)
+            out_quantization = t3.utils.auto_shape(
+                out_features, d=d, criterion=auto_shape_criterion, mode=auto_shape_mode)
+
+            shape = [in_quantization, out_quantization]
+
+        if init is None:
+            if shape is None:
+                raise ValueError(
+                    "if init is not provided, please specify shape, or set auto_shapes=True")
+        else:
+            shape = init.raw_shape
+
+        if init is None:
+            init = t3.const_initializer(shape, tt_rank=tt_rank)
+
+        self.shape = shape
+        self.weight = init.to_parameter()
+        self.parameters = self.weight.parameter
+
+    def forward(self, x):
+        unpacked = self.weight.tt_cores[0]
+        for tt_core in tt_cores[1:]:
+            unpacked = torch.tensordot(unpacked, tt_core, dims=[[-1],[0]])
+
+        return unpacked.reshape(*x.shape) * x
+
+
 class TRLinear(nn.Module):
     def __init__(self, in_features=None, out_features=None, bias=True, init=None, shape=None,
                  auto_shapes=True, d=3, tt_rank=8, auto_shape_mode='ascending',

@@ -215,6 +215,35 @@ def matrix_with_random_cores(shape, tt_rank=2, mean=0., stddev=1.,
     return TensorTrain(tt_cores)
 
 
+def matrix_with_const_cores(shape, tt_rank=2, scale_const=1.0, dtype=torch.float32):
+    R = tt_rank
+    shape = list(shape)
+    # In case shape represents a vector, e.g. [None, [2, 2, 2]]
+    if shape[0] is None:
+        shape[0] = np.ones(len(shape[1]), dtype=int)
+    # In case shape represents a vector, e.g. [[2, 2, 2], None]
+    if shape[1] is None:
+        shape[1] = np.ones(len(shape[0]), dtype=int)
+    shape = np.array(shape)
+    tt_rank = np.array(tt_rank)
+    _validate_input_parameters(is_tensor=False, shape=shape, tt_rank=tt_rank)
+
+    num_dims = shape[0].size
+    if tt_rank.size == 1:
+        tt_rank = tt_rank * np.ones(num_dims - 1)
+        tt_rank = np.concatenate([[1], tt_rank, [1]])
+
+    tt_rank = tt_rank.astype(int)
+    tt_cores = [None] * num_dims
+
+    for i in range(num_dims):
+        curr_core_shape = (tt_rank[i], shape[0][i], shape[1][i],
+                           tt_rank[i + 1])
+        tt_cores[i] = torch.ones(curr_core_shape, dtype=dtype) / (scale_const * R)**((num_dims - 1) / num_dims)
+
+    return TensorTrain(tt_cores)
+
+
 def random_matrix(shape, tt_rank=2, mean=0., stddev=1.,
                   dtype=torch.float32):
     """Generate a random TT-matrix of the given shape with given mean and stddev.
@@ -281,6 +310,31 @@ def random_matrix(shape, tt_rank=2, mean=0., stddev=1.,
     else:
         raise NotImplementedError('non-zero mean is not supported yet')
 
+
+def const_matrix(shape, tt_rank=2, scale_const=1.0, dtype=torch.float32):
+    
+    shape = list(shape)
+    # In case shape represents a vector, e.g. [None, [2, 2, 2]]
+    if shape[0] is None:
+        shape[0] = np.ones(len(shape[1]), dtype=int)
+    # In case shape represents a vector, e.g. [[2, 2, 2], None]
+    if shape[1] is None:
+        shape[1] = np.ones(len(shape[0]), dtype=int)
+    shape = np.array(shape)
+    tt_rank = np.array(tt_rank)
+
+    _validate_input_parameters(is_tensor=False, shape=shape, tt_rank=tt_rank)
+
+    num_dims = shape[0].size
+    if tt_rank.size == 1:
+        tt_rank = tt_rank * np.ones(num_dims - 1)
+        tt_rank = np.concatenate([[1], tt_rank, [1]])
+
+    tt_rank = tt_rank.astype(int)
+
+    tt = matrix_with_const_cores(shape, tt_rank=tt_rank, scale_const=scale_const, dtype=dtype)
+    return tt
+
         
         
 def glorot_initializer(shape, tt_rank=2, dtype=torch.float32):
@@ -298,6 +352,23 @@ def glorot_initializer(shape, tt_rank=2, dtype=torch.float32):
     n_out = np.prod(shape[1])
     lamb = 2.0 / (n_in + n_out)
     return random_matrix(shape, tt_rank=tt_rank, stddev=np.sqrt(lamb),dtype=dtype)
+
+
+def const_initializer(shape, tt_rank=2, scale_const=1.0, dtype=torch.float32):
+    shape = list(shape)
+    # In case shape represents a vector, e.g. [None, [2, 2, 2]]
+    if shape[0] is None:
+        shape[0] = np.ones(len(shape[1]), dtype=int)
+      # In case shape represents a vector, e.g. [[2, 2, 2], None]
+    if shape[1] is None:
+        shape[1] = np.ones(len(shape[0]), dtype=int)
+    shape = np.array(shape)
+    tt_rank = np.array(tt_rank)
+    _validate_input_parameters(is_tensor=False, shape=shape, tt_rank=tt_rank)
+    n_in = np.prod(shape[0])
+    n_out = np.prod(shape[1])
+
+    return const_matrix(shape, tt_rank=tt_rank, scale_const=scale_const, dtype=dtype)
 
 
 
