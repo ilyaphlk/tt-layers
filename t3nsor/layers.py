@@ -231,11 +231,12 @@ class TTLinear(nn.Module):
 
 
 class TTLayerNorm(nn.Module):
-    def __init__(self, in_features=None, out_features=None, bias=False, init=None, shape=None,
+    def __init__(self, in_features=None, out_features=None, eps=1e-6,
+                 bias=False, init=None, shape=None,
                  auto_shapes=True, d=3, tt_rank=1, auto_shape_mode='ascending',
                  auto_shape_criterion='entropy', naive=False,
                  ):
-        super(TTLinear, self).__init__()
+        super(TTLayerNorm, self).__init__()
 
         if auto_shapes:
             if in_features is None or out_features is None:
@@ -261,13 +262,17 @@ class TTLayerNorm(nn.Module):
         self.shape = shape
         self.weight = init.to_parameter()
         self.parameters = self.weight.parameter
+        self.variance_epsilon = eps
 
-    def forward(self, x):
+    def forward(self, hidden_states):
+        variance = hidden_states.to(torch.float32).pow(2).mean(-1, keepdim=True)
+        hidden_states = hidden_states * torch.rsqrt(variance + self.variance_epsilon)
+
         unpacked = self.weight.tt_cores[0]
         for tt_core in tt_cores[1:]:
             unpacked = torch.tensordot(unpacked, tt_core, dims=[[-1],[0]])
 
-        return unpacked.reshape(*x.shape) * x
+        return unpacked.reshape(*hidden_states.shape) * hidden_states
 
 
 class TRLinear(nn.Module):
