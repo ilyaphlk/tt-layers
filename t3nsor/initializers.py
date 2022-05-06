@@ -331,6 +331,7 @@ def const_matrix(shape, tt_rank=2, scale_const=1.0, dtype=torch.float32):
         tt_rank = np.concatenate([[1], tt_rank, [1]])
 
     tt_rank = tt_rank.astype(int)
+    print("tt_rank in const_matrix:", tt_rank)
 
     tt = matrix_with_const_cores(shape, tt_rank=tt_rank, scale_const=scale_const, dtype=dtype)
     return tt
