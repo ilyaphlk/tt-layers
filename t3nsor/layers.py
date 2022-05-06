@@ -272,6 +272,9 @@ class TTLayerNorm(nn.Module):
         for tt_core in self.weight.tt_cores[1:]:
             unpacked = torch.tensordot(unpacked, tt_core, dims=[[-1],[0]])
 
+        print(unpacked.shape)
+        print(hidden_states.shape)
+
         return unpacked.reshape(*hidden_states.shape) * hidden_states
 
 
