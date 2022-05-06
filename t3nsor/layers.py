@@ -268,24 +268,25 @@ class TTLayerNorm(nn.Module):
         variance = hidden_states.to(torch.float32).pow(2).mean(-1, keepdim=True)
         hidden_states = hidden_states * torch.rsqrt(variance + self.variance_epsilon)
 
-        print()
-        print(self.shape)
+        # print()
+        # print(self.shape)
 
-        for tt_core in self.weight.tt_cores:
-            print(tt_core.shape)
-        print()
+        # for tt_core in self.weight.tt_cores:
+        #     print(tt_core.shape)
+        # print()
 
         unpacked = self.weight.tt_cores[0]
-        print(unpacked.shape)
+        # print(unpacked.shape)
         for tt_core in self.weight.tt_cores[1:]:
             unpacked = torch.tensordot(unpacked, tt_core, dims=[[-1],[0]])
-            print(unpacked.shape)
-        print()
+        #     print(unpacked.shape)
+        # print()
 
-        print(unpacked.shape)
-        print(hidden_states.shape)
+        # print(unpacked.shape)
+        # print(hidden_states.shape)
 
-        return unpacked.reshape(*hidden_states.shape) * hidden_states
+        # TODO: if normalized weight is not a vector, specify correct shape
+        return unpacked.reshape(-1) * hidden_states
 
 
 class TRLinear(nn.Module):
