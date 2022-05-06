@@ -269,6 +269,8 @@ class TTLayerNorm(nn.Module):
         hidden_states = hidden_states * torch.rsqrt(variance + self.variance_epsilon)
 
         print()
+        print(self.shape)
+
         for tt_core in self.weight.tt_cores:
             print(tt_core.shape)
         print()
