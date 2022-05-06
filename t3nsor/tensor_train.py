@@ -8,7 +8,7 @@ class TensorTrain(object):
         #tt_cores = list(tt_cores)
         if convert_to_tensors:
             for i in range(len(tt_cores)):
-                tt_cores[i] = torch.Tensor(tt_cores[i])
+                tt_cores[i] = torch.Tensor(tt_cores[i]).float()
 
         self._tt_cores = tt_cores
 
