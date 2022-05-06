@@ -216,7 +216,7 @@ def matrix_with_random_cores(shape, tt_rank=2, mean=0., stddev=1.,
 
 
 def matrix_with_const_cores(shape, tt_rank=2, scale_const=1.0, dtype=torch.float32):
-    R = tt_rank
+    R = tt_rank[0]
     shape = list(shape)
     # In case shape represents a vector, e.g. [None, [2, 2, 2]]
     if shape[0] is None:
@@ -237,8 +237,7 @@ def matrix_with_const_cores(shape, tt_rank=2, scale_const=1.0, dtype=torch.float
     tt_cores = [None] * num_dims
 
     for i in range(num_dims):
-        curr_core_shape = (tt_rank[i], shape[0][i], shape[1][i],
-                           tt_rank[i + 1])
+        curr_core_shape = (tt_rank[i], shape[0][i], shape[1][i], tt_rank[i + 1])
         tt_cores[i] = torch.ones(curr_core_shape, dtype=dtype).float() / (scale_const * R)**((num_dims - 1) / num_dims)
 
     return TensorTrain(tt_cores)
