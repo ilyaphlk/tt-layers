@@ -263,10 +263,10 @@ class TTBias(nn.Module):
         self.weight = init.to_parameter()
         self.parameters = self.weight.parameter
 
-        unpacked = self.weight.tt_cores[0]
-        for tt_core in self.weight.tt_cores[1:]:
-            unpacked = torch.tensordot(unpacked, tt_core, dims=[[-1],[0]])
-        print("init bias", unpacked)
+        # unpacked = self.weight.tt_cores[0]
+        # for tt_core in self.weight.tt_cores[1:]:
+        #     unpacked = torch.tensordot(unpacked, tt_core, dims=[[-1],[0]])
+        # print("init bias", unpacked)
 
     def forward(self, x):
         unpacked = self.weight.tt_cores[0]
@@ -313,10 +313,10 @@ class TTLayerNorm(nn.Module):
         self.parameters = self.weight.parameter
         self.variance_epsilon = eps
 
-        unpacked = self.weight.tt_cores[0]
-        for tt_core in self.weight.tt_cores[1:]:
-            unpacked = torch.tensordot(unpacked, tt_core, dims=[[-1],[0]])
-        print("init layernorm", unpacked)
+        # unpacked = self.weight.tt_cores[0]
+        # for tt_core in self.weight.tt_cores[1:]:
+        #     unpacked = torch.tensordot(unpacked, tt_core, dims=[[-1],[0]])
+        # print("init layernorm", unpacked)
 
 
 
