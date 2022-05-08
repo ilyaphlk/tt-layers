@@ -168,7 +168,7 @@ class TTLinear(nn.Module):
                  auto_shapes=True, d=3, tt_rank=8, auto_shape_mode='ascending',
                  auto_shape_criterion='entropy', naive=False,
                  reverse_out_shape=False, factorize_smaller_dim=True, use_scripted_mul=False,
-                 cores_nonlinearity=None,
+                 cores_nonlinearity=None, use_TTBias=False
                  ):
         super(TTLinear, self).__init__()
 
@@ -217,7 +217,10 @@ class TTLinear(nn.Module):
                 use_scripted_mul=use_scripted_mul,
                 cores_nonlinearity=cores_nonlinearity
             )
-        if bias:
+        self.use_TTBias = use_TTBias
+        if bias and use_TTBias:
+            self.bias = TTLinear(out_features, 1, bias=False, d=3, tt_rank=1).weight
+        elif bias:
             self.bias = torch.nn.Parameter(1e-3 * torch.ones(out_features))
         else:
             self.register_parameter('bias', None)
@@ -226,6 +229,11 @@ class TTLinear(nn.Module):
         weight = self.weight
         if self.bias is None:
             return self.mm_op(x, weight)
+        elif self.use_TTBias:
+            unpacked = self.bias.tt_cores[0]
+            for tt_core in self.bias.tt_cores[1:]:
+                unpacked = torch.tensordot(unpacked, tt_core, dims=[[-1],[0]])
+            return self.mm_op(x, weight) + unpacked.reshape(-1)
         else:
             return self.mm_op(x, weight) + self.bias
 
