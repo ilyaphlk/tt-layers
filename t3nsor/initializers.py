@@ -238,7 +238,7 @@ def matrix_with_const_cores(shape, tt_rank=2, scale_const=1.0, dtype=torch.float
 
     for i in range(num_dims):
         curr_core_shape = (tt_rank[i], shape[0][i], shape[1][i], tt_rank[i + 1])
-        tt_cores[i] = torch.ones(curr_core_shape, dtype=dtype).float() / (scale_const * R)**((num_dims - 1) / num_dims)
+        tt_cores[i] = scale_const * torch.ones(curr_core_shape, dtype=dtype).float() / (scale_const * R)**((num_dims - 1) / num_dims)
 
     return TensorTrain(tt_cores)
 
