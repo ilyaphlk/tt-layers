@@ -219,7 +219,7 @@ class TTLinear(nn.Module):
             )
         self.use_TTBias = use_TTBias
         if bias and use_TTBias:
-            self.bias = TTLinear(out_features, 1, bias=False, d=3, tt_rank=1).weight.cuda()
+            self.bias = torch.nn.Parameter(TTLinear(out_features, 1, bias=False, d=3, tt_rank=1).weight)
         elif bias:
             self.bias = torch.nn.Parameter(1e-3 * torch.ones(out_features))
         else:
