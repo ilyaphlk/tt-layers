@@ -233,7 +233,7 @@ class TTLinear(nn.Module):
 class TTBias(nn.Module):
     def __init__(self, in_features=None, out_features=None, c=1e-3,
                  init=None, shape=None,
-                 auto_shapes=True, d=3, tt_rank=1, auto_shape_mode='ascending',
+                 auto_shapes=True, d=3, tt_rank=2, auto_shape_mode='ascending',
                  auto_shape_criterion='entropy', naive=False,
                  ):
         super(TTBias, self).__init__()
@@ -281,7 +281,7 @@ class TTBias(nn.Module):
 class TTLayerNorm(nn.Module):
     def __init__(self, in_features=None, out_features=None, eps=1e-6,
                  bias=False, init=None, shape=None,
-                 auto_shapes=True, d=3, tt_rank=1, auto_shape_mode='ascending',
+                 auto_shapes=True, d=3, tt_rank=2, auto_shape_mode='ascending',
                  auto_shape_criterion='entropy', naive=False,
                  ):
         super(TTLayerNorm, self).__init__()
