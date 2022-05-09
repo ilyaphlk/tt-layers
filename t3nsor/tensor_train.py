@@ -12,7 +12,7 @@ class TensorTrain(object):
                     tt_cores[i] = torch.Tensor(tt_cores[i].float())
             else:
                 for i in range(len(tt_cores)):
-                    tt_cores[i] = torch.Tensor(tt_cores[i].float())
+                    tt_cores[i] = torch.Tensor(tt_cores[i])
 
         self._tt_cores = tt_cores
 
