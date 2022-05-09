@@ -7,8 +7,12 @@ class TensorTrain(object):
     def __init__(self, tt_cores, shape=None, tt_ranks=None, convert_to_tensors=True):
         #tt_cores = list(tt_cores)
         if convert_to_tensors:
-            for i in range(len(tt_cores)):
-                tt_cores[i] = torch.Tensor(tt_cores[i].float())
+            if isinstance(tt_cores[0], torch.Tensor):
+                for i in range(len(tt_cores)):
+                    tt_cores[i] = torch.Tensor(tt_cores[i].float())
+            else:
+                for i in range(len(tt_cores)):
+                    tt_cores[i] = torch.Tensor(tt_cores[i].float())
 
         self._tt_cores = tt_cores
 
