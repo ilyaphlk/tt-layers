@@ -216,7 +216,7 @@ def matrix_with_random_cores(shape, tt_rank=2, mean=0., stddev=1.,
 
 
 def matrix_with_const_cores(shape, tt_rank=2, scale_const=1.0, dtype=torch.float32):
-    R = tt_rank[0]
+    R = tt_rank[1]
     print(f"R is {R}")
     print(tt_rank)
     shape = list(shape)
