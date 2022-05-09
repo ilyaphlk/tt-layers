@@ -283,6 +283,7 @@ class TTLayerNorm(nn.Module):
                  bias=False, init=None, shape=None,
                  auto_shapes=True, d=3, tt_rank=2, auto_shape_mode='ascending',
                  auto_shape_criterion='entropy', naive=False,
+                 scale_const=1.0
                  ):
         super(TTLayerNorm, self).__init__()
 
@@ -305,7 +306,7 @@ class TTLayerNorm(nn.Module):
             shape = init.raw_shape
 
         if init is None:
-            init = t3.const_initializer(shape, tt_rank=tt_rank, scale_const=1.0)
+            init = t3.const_initializer(shape, tt_rank=tt_rank, scale_const=scale_const)
 
 
         self.shape = shape
