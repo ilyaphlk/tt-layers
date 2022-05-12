@@ -203,6 +203,7 @@ class TTLinear(nn.Module):
         else:
             shape = init.raw_shape
 
+        self.tt_rank = tt_rank
         if init is None:
             init = t3.glorot_initializer(shape, tt_rank=tt_rank)
 
@@ -228,6 +229,10 @@ class TTLinear(nn.Module):
             return self.mm_op(x, weight)
         else:
             return self.mm_op(x, weight) + self.bias
+
+    def reset_parameters():
+        self.weight = t3.glorot_initializer(self.shape, tt_rank=self.tt_rank).to_parameter()
+        self.parameters = self.weight.parameter
 
 
 class TTBias(nn.Module):
