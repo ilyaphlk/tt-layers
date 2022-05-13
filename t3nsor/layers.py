@@ -230,7 +230,7 @@ class TTLinear(nn.Module):
         else:
             return self.mm_op(x, weight) + self.bias
 
-    def reset_parameters():
+    def reset_parameters(self):
         self.weight = t3.glorot_initializer(self.shape, tt_rank=self.tt_rank).to_parameter()
         self.parameters = self.weight.parameter
 
