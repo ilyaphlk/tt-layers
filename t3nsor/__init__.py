@@ -17,7 +17,7 @@ from t3nsor.layers import TREmbedding
 from t3nsor.layers import TTLinear
 from t3nsor.layers import TRLinear
 from t3nsor.initializers import matrix_zeros
-from t3nsor.initializers import glorot_initializer, const_initializer
+from t3nsor.initializers import glorot_initializer, const_initializer, kaiming_zero_initializer
 from t3nsor.tensor_ring import TensorRing
 from t3nsor.initializers_tr import tensor_ones_tr
 from t3nsor.initializers_tr import tensor_zeros_tr

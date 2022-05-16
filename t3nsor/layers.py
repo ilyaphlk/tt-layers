@@ -168,7 +168,7 @@ class TTLinear(nn.Module):
                  auto_shapes=True, d=3, tt_rank=8, auto_shape_mode='ascending',
                  auto_shape_criterion='entropy', naive=False,
                  reverse_out_shape=False, factorize_smaller_dim=True, use_scripted_mul=False,
-                 cores_nonlinearity=None
+                 cores_nonlinearity=None, init_mode=None
                  ):
         super(TTLinear, self).__init__()
 
@@ -204,8 +204,12 @@ class TTLinear(nn.Module):
             shape = init.raw_shape
 
         self.tt_rank = tt_rank
-        if init is None:
+        if init is None and init_mode is None:
             init = t3.glorot_initializer(shape, tt_rank=tt_rank)
+        elif init is None and init_mode == 'kaiming_zero':
+            init = t3.kaiming_zero_initializer(shape, tt_rank=tt_rank)
+        else:
+            raise NotImplementedError
 
         self.shape = shape
         self.weight = init.to_parameter()
