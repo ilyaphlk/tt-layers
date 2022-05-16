@@ -196,6 +196,8 @@ class TTLinear(nn.Module):
 
             shape = [in_quantization, out_quantization]
 
+        self.init_mode = init_mode
+
         if init is None:
             if shape is None:
                 raise ValueError(
@@ -235,7 +237,12 @@ class TTLinear(nn.Module):
             return self.mm_op(x, weight) + self.bias
 
     def reset_parameters(self):
-        self.weight = t3.glorot_initializer(self.shape, tt_rank=self.tt_rank).to_parameter()
+        if self.init_mode is None:
+            self.weight = t3.glorot_initializer(self.shape, tt_rank=self.tt_rank).to_parameter()
+        elif self.init_mode == 'kaiming_zero':
+            self.weight = t3.kaiming_zero_initializer(self.shape, tt_rank=self.tt_rank).to_parameter()
+        else:
+            raise NotImplementedError
         self.parameters = self.weight.parameter
 
 
