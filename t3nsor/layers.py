@@ -243,7 +243,11 @@ class TTLinear(nn.Module):
             self.weight = t3.kaiming_zero_initializer(self.shape, tt_rank=self.tt_rank).to_parameter()
         else:
             raise NotImplementedError
+
         self.parameters = self.weight.parameter
+
+        print("AFTER RESET:")
+        print(self.weight.parameter)
 
 
 class TTBias(nn.Module):
