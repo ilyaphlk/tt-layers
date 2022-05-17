@@ -271,6 +271,7 @@ def matrix_with_kaiming_zero_cores(shape, tt_rank=2, scale_const=1.0, dtype=torc
 
     shape_0 = (tt_rank[0], shape[0][0], shape[1][0], tt_rank[1])
     tt_cores[0] = torch.nn.init.kaiming_uniform_(torch.zeros(shape_0).float(), a=math.sqrt(5)).float()
+    print(tt_cores[0])
     for i in range(1, num_dims):
         curr_core_shape = (tt_rank[i], shape[0][i], shape[1][i], tt_rank[i + 1])
         tt_cores[i] = torch.zeros(curr_core_shape).float()
