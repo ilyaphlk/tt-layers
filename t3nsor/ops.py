@@ -143,8 +143,7 @@ def naive_dense_tt_matmul(matrix_a, tt_matrix_b):
     b_rows = tt_matrix_b.shape[0]
     if a_columns is not None and b_rows is not None:
         if a_columns != b_rows:
-            raise ValueError('Arguments shapes should align got %d and %d instead.' %
-                             (matrix_a.shape, tt_matrix_b.shape))
+            raise ValueError('Arguments shapes should align got {} and {} instead.'.format(matrix_a.shape, tt_matrix_b.shape))
 
     # assert ndims == 3
 
