@@ -2,6 +2,8 @@ from t3nsor import TensorTrainBatch
 from t3nsor import TensorTrain
 import torch
 from typing import List
+import string
+
 
 def gather_rows(tt_mat, inds):
     """
@@ -144,17 +146,34 @@ def naive_dense_tt_matmul(matrix_a, tt_matrix_b):
             raise ValueError('Arguments shapes should align got %d and %d instead.' %
                              (matrix_a.shape, tt_matrix_b.shape))
 
-    assert ndims == 3
+    # assert ndims == 3
 
-    core0 = tt_matrix_b.tt_cores[0]  # 1 x n x m x r
-    core1 = tt_matrix_b.tt_cores[1]  # r x n x m x r
-    core2 = tt_matrix_b.tt_cores[2]  # r x n x m x 1
+    # core0 = tt_matrix_b.tt_cores[0]  # 1 x n x m x r
+    # core1 = tt_matrix_b.tt_cores[1]  # r x n x m x r
+    # core2 = tt_matrix_b.tt_cores[2]  # r x n x m x 1
 
-    input = matrix_a.view(-1, core0.shape[1], core1.shape[1], core2.shape[1])
-    B = input.shape[0]
+    # input = matrix_a.view(-1, core0.shape[1], core1.shape[1], core2.shape[1])
+    # B = input.shape[0]
+    a_view = matrix_a.view(-1, *list(map(lambda x: x.shape[1], tt_matrix_b.tt_cores)))
+    B = a_view.shape[0]
 
-    full = torch.einsum('abcd,defg,ghij->bcefhi', core0, core1, core2)
-    res = torch.einsum('abcd,bqcsdx->aqsx', input, full)
+    # full = torch.einsum('abcd,defg,ghij->bcefhi', core0, core1, core2)
+    def core_mul_str(n_cores):
+        alpha_str = string.ascii_lowercase + string.ascii_uppercase
+        inputs = [alpha_str[i:i+4] for i in range(0, 3*n_cores, 3)]
+        output = "".join([elem[1:3] for elem in inputs])
+        return ",".join(inputs)+"->"+output
+    full = torch.einsum(core_mul_str(len(tt_matrix_b.tt_cores)), *tt_matrix_b.tt_cores)
+
+    # res = torch.einsum('abcd,bqcsdx->aqsx', input, full)
+    def res_mul_str(n_cores):
+        alpha_str = string.ascii_lowercase + string.ascii_uppercase
+        in_str = alpha_str[:n_cores+1]
+        full_str = "".join([alpha_str[i+1]+alpha_str[n_cores+1+i] for i in range(n_cores)])
+        res_str = alpha_str[0]+"".join([alpha_str[n_cores+1+i] for i in range(n_cores)])
+        return in_str+","+full_str+"->"+res_str
+    res = torch.einsum(res_mul_str(len(tt_matrix_b.tt_cores)), a_view, full)
+
     return res.contiguous().view(B, -1)
 
 
