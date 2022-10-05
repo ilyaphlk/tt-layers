@@ -166,11 +166,13 @@ class TREmbedding(nn.Module):
 class TTLinear(nn.Module):
     def __init__(self, in_features=None, out_features=None, bias=True, init=None, shape=None,
                  auto_shapes=True, d=3, tt_rank=8, auto_shape_mode='ascending',
-                 auto_shape_criterion='entropy', naive=False,
+                 auto_shape_criterion='entropy', naive=False, ttcore_checkpointing=False,
                  reverse_out_shape=False, factorize_smaller_dim=True, use_scripted_mul=False,
                  cores_nonlinearity=None, init_mode=None
                  ):
         super(TTLinear, self).__init__()
+
+        assert not (naive and ttcore_checkpointing), "can't use ttcore_checkpointing with premultiplied ttcores"
 
         if auto_shapes:
             if in_features is None or out_features is None:
@@ -222,7 +224,8 @@ class TTLinear(nn.Module):
             self.mm_op = lambda matrix_a, tt_matrix_b: t3.dense_tt_matmul(
                 matrix_a, tt_matrix_b,
                 use_scripted_mul=use_scripted_mul,
-                cores_nonlinearity=cores_nonlinearity
+                cores_nonlinearity=cores_nonlinearity,
+                ttcore_checkpointing=ttcore_checkpointing
             )
         if bias:
             self.bias = torch.nn.Parameter(1e-3 * torch.ones(out_features))

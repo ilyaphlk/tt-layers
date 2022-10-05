@@ -95,7 +95,11 @@ def mul_cores_fast(data, tt_cores: List[torch.Tensor]):
     return data
 
 
-def dense_tt_matmul(matrix_a, tt_matrix_b, use_scripted_mul=False, cores_nonlinearity=None):
+def dense_tt_matmul(matrix_a, tt_matrix_b,
+                    use_scripted_mul=False,
+                    cores_nonlinearity=None,
+                    ttcore_checkpointing=False
+                    ):
     ndims = tt_matrix_b.ndims
     a_columns = matrix_a.shape[-1]
     b_rows = tt_matrix_b.shape[0]
@@ -123,9 +127,14 @@ def dense_tt_matmul(matrix_a, tt_matrix_b, use_scripted_mul=False, cores_nonline
         data = mul_cores_fast(data, tt_matrix_b.tt_cores)
     else:
         # correct but slow for large ndims
+        mul_by_core = lambda x, y: torch.tensordot(x, y, dims=[[1, -1], [1, 0]])
+
         for core_idx in range(ndims):
             curr_core = tt_matrix_b.tt_cores[core_idx]
-            data = torch.tensordot(data, curr_core, dims=[[1, -1], [1, 0]])
+            if ttcore_checkpointing:
+                data = torch.utils.checkpoint.checkpoint(mul_by_core, data, curr_core)
+            else:
+                data = mul_by_core(data, curr_core)
             if cores_nonlinearity is not None:
                 data = cores_nonlinearity(data)
 
