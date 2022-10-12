@@ -249,8 +249,8 @@ class TTLinear(nn.Module):
 
         self.parameters = self.weight.parameter
 
-        print("AFTER RESET:")
-        print(self.weight.parameter)
+        #print("AFTER RESET:")
+        #print(self.weight.parameter)
 
 
 class TTBias(nn.Module):
